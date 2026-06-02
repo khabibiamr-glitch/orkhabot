@@ -203,7 +203,7 @@
   /* 2 kolom seperti gambar referensi — angka tidak terpotong */
   .report-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 13px; }
   .report-stat  { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px; }
-  .rs-label     { font-size: 8px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  .rs-label     { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
   /* angka statistik laporan — lebih besar karena 2 kolom */
   .rs-val       { font-size: 15px; font-weight: 700; font-family: var(--mono); letter-spacing: -.4px; line-height: 1.2; }
   .rs-val.green { color: var(--green); }
@@ -362,9 +362,15 @@
   <!-- LAPORAN -->
   <div class="page" id="page-laporan">
     <div class="card">
-      <div class="card-header">📋 Laporan Bulanan</div>
+      <div class="card-header">📋 Laporan</div>
       <div class="card-body">
-        <div class="report-month" id="rptBulan">— —</div>
+        <!-- Tab Harian / Mingguan / Bulanan -->
+        <div class="tren-tabs" style="margin-bottom:16px;">
+          <button class="tren-tab" onclick="switchLaporan('harian',this)">Harian</button>
+          <button class="tren-tab" onclick="switchLaporan('mingguan',this)">Mingguan</button>
+          <button class="tren-tab active" onclick="switchLaporan('bulanan',this)">Bulanan</button>
+        </div>
+        <div class="report-month" id="rptPeriode">— —</div>
         <div class="report-stats">
           <div class="report-stat"><div class="rs-label">📈 Pemasukan</div><div class="rs-val green" id="rptMasuk">—</div></div>
           <div class="report-stat"><div class="rs-label">📉 Pengeluaran</div><div class="rs-val red" id="rptKeluar">—</div></div>
@@ -861,15 +867,63 @@ function renderRiwayat() {
 }
 
 // ══════════════════════════════════════════════════
-// LAPORAN — dihitung dari transaksi bulan ini
+// LAPORAN — Harian / Mingguan / Bulanan
 // ══════════════════════════════════════════════════
-function renderLaporan() {
-  const bulanIni   = getBulanIni();
-  const txBulanIni = allTx.filter(t => t.tgl && t.tgl.startsWith(bulanIni));
+let activeLaporanMode = 'bulanan';
 
+function switchLaporan(mode, btn) {
+  activeLaporanMode = mode;
+  document.querySelectorAll('#page-laporan .tren-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderLaporan();
+}
+
+function renderLaporan() {
+  const today  = getTodayWITA();
+  const todayDt = new Date(today);
+  const moNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const moNamesShort = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+  let txPeriode = [];
+  let periodeLabel = '';
+  let hariDlmPeriode = 1;
+
+  if (activeLaporanMode === 'harian') {
+    // Hari ini
+    txPeriode    = allTx.filter(t => t.tgl === today);
+    const d      = todayDt;
+    const dayNames = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    periodeLabel = dayNames[d.getDay()] + ', ' + d.getDate() + ' ' + moNamesShort[d.getMonth()] + ' ' + d.getFullYear();
+    hariDlmPeriode = 1;
+
+  } else if (activeLaporanMode === 'mingguan') {
+    // Minggu ini (Senin s/d hari ini)
+    const day = todayDt.getDay(); // 0=Sun
+    const diffToMon = (day === 0) ? 6 : day - 1;
+    const monday = new Date(todayDt); monday.setDate(todayDt.getDate() - diffToMon);
+    const monStr = monday.toISOString().split('T')[0];
+    txPeriode = allTx.filter(t => {
+      if (!t.tgl) return false;
+      return t.tgl >= monStr && t.tgl <= today;
+    });
+    periodeLabel = monday.getDate() + ' ' + moNamesShort[monday.getMonth()] +
+                   ' – ' + todayDt.getDate() + ' ' + moNamesShort[todayDt.getMonth()] + ' ' + todayDt.getFullYear();
+    hariDlmPeriode = diffToMon + 1;
+
+  } else {
+    // Bulan ini
+    const bulanIni = getBulanIni();
+    txPeriode    = allTx.filter(t => t.tgl && t.tgl.startsWith(bulanIni));
+    const moIdx  = parseInt(bulanIni.split('-')[1]) - 1;
+    const tahun  = bulanIni.split('-')[0];
+    periodeLabel = moNames[moIdx] + ' ' + tahun;
+    hariDlmPeriode = todayDt.getDate();
+  }
+
+  // Hitung totals
   let masuk = 0, keluar = 0;
   const katMap = {};
-  txBulanIni.forEach(t => {
+  txPeriode.forEach(t => {
     if (t.tipe === 'pemasukan') {
       masuk += Number(t.jumlah);
     } else {
@@ -878,30 +932,45 @@ function renderLaporan() {
     }
   });
 
-  const sisa    = masuk - keluar;
-  const savings = masuk > 0 ? Math.round(sisa/masuk*100) : 0;
-  const hariIni = new Date(getTodayWITA()).getDate();
-  const rataHari = hariIni > 0 ? Math.round(keluar / hariIni) : 0;
+  const sisa     = masuk - keluar;
+  const savings  = masuk > 0 ? Math.round(sisa/masuk*100) : 0;
+  const rataHari = hariDlmPeriode > 0 ? Math.round(keluar / hariDlmPeriode) : 0;
 
-  const moNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-  const moIdx   = parseInt(bulanIni.split('-')[1]) - 1;
-  const tahun   = bulanIni.split('-')[0];
+  // Label rata berbeda per mode
+  const rataLabel = activeLaporanMode === 'harian'   ? '📊 Rata/Jam'  :
+                    activeLaporanMode === 'mingguan'  ? '📊 Rata/Hari' : '📊 Rata/Hari';
+  const rataVal   = activeLaporanMode === 'harian'
+    ? fmt(Math.round(keluar / 24))
+    : fmt(rataHari);
 
-  document.getElementById('rptBulan').textContent   = moNames[moIdx] + ' ' + tahun;
-  document.getElementById('rptMasuk').textContent   = fmt(masuk);
-  document.getElementById('rptKeluar').textContent  = fmt(keluar);
-  document.getElementById('rptSisa').textContent    = fmt(sisa);
-  document.getElementById('rptTx').textContent      = txBulanIni.length + "x";
-  document.getElementById('rptRata').textContent    = fmt(rataHari);
-  document.getElementById('rptSavings').textContent = savings + "%";
+  document.getElementById('rptPeriode').textContent  = periodeLabel;
+  document.getElementById('rptMasuk').textContent    = fmt(masuk);
+  document.getElementById('rptKeluar').textContent   = fmt(keluar);
+  document.getElementById('rptSisa').textContent     = fmt(sisa);
+  document.getElementById('rptTx').textContent       = txPeriode.length + "x";
+  document.getElementById('rptRata').textContent     = rataVal;
+  document.getElementById('rptSavings').textContent  = savings + "%";
+
+  // Update label Rata/Hari dinamis
+  const rataEl = document.querySelector('#rptRata').previousElementSibling;
+  if (rataEl) rataEl.textContent = rataLabel;
 
   // Kategori pengeluaran
-  const katList  = Object.entries(katMap).sort((a,b) => b[1]-a[1]);
-  const maxKat   = katList[0]?.[1] || 1;
-  const katColors = { 'Paket Data':'var(--purple)', 'Jajan / Makan di luar':'var(--cyan)', 'Belanja bulanan':'var(--orange)', 'Listrik':'var(--red)' };
+  const katList   = Object.entries(katMap).sort((a,b) => b[1]-a[1]);
+  const maxKat    = katList[0]?.[1] || 1;
+  const katColors = {
+    'Paket Data':'var(--purple)', 'Jajan / Makan di luar':'var(--cyan)',
+    'Belanja bulanan':'var(--orange)', 'Listrik':'var(--red)',
+    'Makanan':'var(--orange)', 'Transportasi':'var(--cyan)',
+    'Otomotif':'var(--purple)', 'Kesehatan':'var(--green)'
+  };
+
+  const emptyMsg = activeLaporanMode === 'harian'   ? 'Belum ada pengeluaran hari ini' :
+                   activeLaporanMode === 'mingguan'  ? 'Belum ada pengeluaran minggu ini' :
+                                                       'Belum ada pengeluaran bulan ini';
 
   document.getElementById('katList').innerHTML = katList.length === 0
-    ? '<div class="empty">Belum ada pengeluaran bulan ini</div>'
+    ? `<div class="empty">${emptyMsg}</div>`
     : katList.map(([k,v]) => `
         <div class="cat-row">
           <div class="cat-row-top">
