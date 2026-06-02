@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Keuangan Bot</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f14;
+    --surface: #16161e;
+    --surface2: #1e1e2a;
+    --border: #2a2a38;
+    --purple: #7c6ef5;
+    --purple-dim: #3d3578;
+    --green: #4ade80;
+    --red: #f87171;
+    --cyan: #22d3ee;
+    --orange: #fb923c;
+    --text: #e8e8f0;
+    --text-dim: #7f7f9a;
+    --radius: 14px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; overflow:hidden; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    padding: 20px 20px 12px;
+    background: var(--bg);
+    position: relative;
+    z-index: 10;
+  }
+  .topbar-label { font-size: 11px; color: var(--text-dim); letter-spacing: .12em; text-transform: uppercase; }
+  .topbar-amount {
+    font-size: 30px; font-weight: 800; margin-top: 4px;
+    display: flex; align-items: baseline; gap: 6px;
+  }
+  .topbar-amount .currency { color: var(--purple); font-size: 22px; }
+  .topbar-amount .number { color: var(--text); letter-spacing: -1px; }
+
+  /* ── TAB NAV ── */
+  .tabnav {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    padding: 0 8px;
+  }
+  .tab {
+    flex: 1; padding: 10px 4px; text-align: center;
+    font-size: 11px; font-weight: 600; letter-spacing: .06em;
+    color: var(--text-dim); cursor: pointer; position: relative;
+    text-transform: uppercase; transition: color .2s;
+    border: none; background: none;
+  }
+  .tab .tab-icon { display: block; font-size: 16px; margin-bottom: 3px; }
+  .tab.active { color: var(--purple); }
+  .tab.active::after {
+    content: ''; position: absolute; bottom: -1px; left: 20%; right: 20%;
+    height: 2px; background: var(--purple); border-radius: 2px 2px 0 0;
+  }
+
+  /* ── CONTENT ── */
+  .content {
+    flex: 1; overflow-y: auto; padding: 16px 16px 24px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface); border-radius: var(--radius);
+    border: 1px solid var(--border); overflow: hidden; margin-bottom: 12px;
+  }
+  .card-header {
+    padding: 12px 16px 10px; font-size: 11px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-body { padding: 14px 16px; }
+
+  /* ── STAT GRID ── */
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .stat-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 14px 12px;
+  }
+  .stat-label { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  .stat-value { font-size: 16px; font-weight: 800; }
+  .stat-value.green { color: var(--green); }
+  .stat-value.red   { color: var(--red); }
+  .stat-value.purple { color: var(--purple); }
+  .stat-value.white  { color: var(--text); }
+
+  /* ── BUDGET BAR ── */
+  .budget-big {
+    background: var(--surface); border-radius: var(--radius);
+    border: 1px solid var(--border); padding: 16px; margin-bottom: 12px;
+  }
+  .budget-label { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px; }
+  .budget-amount { font-size: 26px; font-weight: 800; color: var(--green); margin-bottom: 12px; }
+  .progress-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
+  .progress-bar { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width .6s ease; }
+
+  /* ── WALLET CARDS ── */
+  .wallet-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .wallet-scroll::-webkit-scrollbar { display: none; }
+  .wallet-card {
+    min-width: 140px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px; flex-shrink: 0;
+  }
+  .wallet-icon { font-size: 20px; margin-bottom: 6px; }
+  .wallet-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .wallet-label { font-size: 10px; color: var(--text-dim); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+  .wallet-amount { font-size: 14px; font-weight: 700; color: var(--green); }
+
+  /* ── TRANSACTION LIST ── */
+  .tx-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .tx-item:last-child { border-bottom: none; }
+  .tx-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--surface2); display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .tx-info { flex: 1; min-width: 0; }
+  .tx-name { font-weight: 700; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tx-cat  { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .tx-amount { font-weight: 700; font-size: 13px; white-space: nowrap; }
+  .tx-amount.green { color: var(--green); }
+  .tx-amount.red   { color: var(--red); }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-size: 10px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--text-dim);
+    margin: 16px 0 8px;
+  }
+
+  /* ── DONUT CHART ── */
+  .donut-wrap { position: relative; width: 170px; height: 170px; margin: 0 auto 16px; }
+  .donut-wrap canvas { display: block; }
+  .donut-center {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    text-align: center; pointer-events: none;
+  }
+  .donut-center .dc-label { font-size: 10px; color: var(--text-dim); letter-spacing: .08em; text-transform: uppercase; }
+  .donut-center .dc-total { font-size: 17px; font-weight: 800; color: var(--text); }
+
+  .legend-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 0; border-bottom: 1px solid var(--border);
+  }
+  .legend-row:last-child { border-bottom: none; }
+  .legend-left { display: flex; align-items: center; gap: 10px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .legend-pct { font-size: 12px; color: var(--text-dim); margin-right: 8px; }
+  .legend-name { font-size: 13px; font-weight: 600; }
+  .legend-amt { font-size: 13px; font-weight: 700; color: var(--red); }
+
+  /* ── BAR CHART ── */
+  .bar-chart { display: flex; gap: 6px; align-items: flex-end; height: 100px; margin-top: 12px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar-fill { width: 100%; border-radius: 4px 4px 0 0; transition: height .4s ease; min-height: 2px; }
+  .bar-fill.income { background: var(--green); }
+  .bar-fill.expense { background: var(--red); opacity: .8; }
+  .bar-label { font-size: 10px; color: var(--text-dim); }
+
+  /* ── REPORT ── */
+  .report-month {
+    font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700;
+    color: var(--text); margin-bottom: 14px; letter-spacing: -1px;
+  }
+  .report-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .report-stat {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 10px;
+  }
+  .report-stat .rs-label { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 5px; }
+  .report-stat .rs-val { font-size: 13px; font-weight: 800; }
+
+  .cat-row {
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .cat-row:last-child { border-bottom: none; }
+  .cat-row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .cat-name { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+  .cat-amt { font-size: 13px; font-weight: 700; color: var(--red); }
+  .cat-bar-wrap { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .cat-bar-fill { height: 100%; border-radius: 99px; }
+
+  /* ── LOADING ── */
+  .loading {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 40px 0; gap: 12px; color: var(--text-dim);
+  }
+  .spinner {
+    width: 32px; height: 32px; border: 3px solid var(--border);
+    border-top-color: var(--purple); border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── EMPTY STATE ── */
+  .empty { text-align: center; padding: 32px 0; color: var(--text-dim); }
+  .empty .empty-icon { font-size: 36px; margin-bottom: 10px; }
+
+  /* ── ADD BUTTON ── */
+  .fab {
+    position: fixed; bottom: 80px; right: 18px;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--purple); color: #fff; font-size: 24px;
+    border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(124,110,245,.5);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .15s;
+    z-index: 100;
+  }
+  .fab:active { transform: scale(.92); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-label">Total Kekayaan</div>
+  <div class="topbar-amount">
+    <span class="currency">Rp</span>
+    <span class="number" id="totalKekayaan">—</span>
+  </div>
+</div>
+
+<nav class="tabnav">
+  <button class="tab active" onclick="switchTab('beranda', this)">
+    <span class="tab-icon">🏠</span>BERANDA
+  </button>
+  <button class="tab" onclick="switchTab('grafik', this)">
+    <span class="tab-icon">📊</span>GRAFIK
+  </button>
+  <button class="tab" onclick="switchTab('riwayat', this)">
+    <span class="tab-icon">🕐</span>RIWAYAT
+  </button>
+  <button class="tab" onclick="switchTab('laporan', this)">
+    <span class="tab-icon">📋</span>LAPORAN
+  </button>
+</nav>
+
+<div class="content">
+
+  <!-- ══ BERANDA ══ -->
+  <div class="page active" id="page-beranda">
+    <div class="stat-grid">
+      <div class="stat-box">
+        <div class="stat-label">📈 Pemasukan</div>
+        <div class="stat-value green" id="b-masuk">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">📉 Pengeluaran</div>
+        <div class="stat-value red" id="b-keluar">—</div>
+      </div>
+    </div>
+
+    <div class="budget-big">
+      <div class="budget-label">💰 Sisa Budget</div>
+      <div class="budget-amount" id="b-sisa">—</div>
+      <div class="progress-row">
+        <span>Terpakai</span>
+        <span id="b-pct">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="b-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="section-title">💳 Saldo Dompet</div>
+    <div class="wallet-scroll" id="walletList">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+
+    <div class="section-title">📅 Transaksi Hari Ini</div>
+    <div class="card">
+      <div class="card-body" id="txHariIni">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ GRAFIK ══ -->
+  <div class="page" id="page-grafik">
+    <div class="card">
+      <div class="card-header">🏆 Top 5 Pengeluaran</div>
+      <div class="card-body">
+        <div class="donut-wrap">
+          <canvas id="donutCanvas" width="170" height="170"></canvas>
+          <div class="donut-center">
+            <div class="dc-label">TOTAL</div>
+            <div class="dc-total" id="donutTotal">—</div>
+          </div>
+        </div>
+        <div id="legendList"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">📈 Tren Transaksi</div>
+      <div class="card-body">
+        <div style="display:flex;gap:12px;margin-bottom:12px;">
+          <span style="font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:5px;">
+            <span style="width:10px;height:10px;background:var(--green);border-radius:2px;display:inline-block;"></span>Pemasukan
+          </span>
+          <span style="font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:5px;">
+            <span style="width:10px;height:10px;background:var(--red);border-radius:2px;display:inline-block;"></span>Pengeluaran
+          </span>
+        </div>
+        <div class="bar-chart" id="trendChart"></div>
+        <div style="display:flex;gap:6px;margin-top:6px;" id="trendLabels"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RIWAYAT ══ -->
+  <div class="page" id="page-riwayat">
+    <div class="card">
+      <div class="card-header">🕐 Riwayat Transaksi</div>
+      <div class="card-body" id="riwayatList">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ LAPORAN ══ -->
+  <div class="page" id="page-laporan">
+    <div class="card">
+      <div class="card-header">📋 Laporan Bulanan</div>
+      <div class="card-body">
+        <div class="report-month" id="rptBulan">— —</div>
+        <div class="report-stats">
+          <div class="report-stat">
+            <div class="rs-label">Pemasukan</div>
+            <div class="rs-val green" id="rptMasuk">—</div>
+          </div>
+          <div class="report-stat">
+            <div class="rs-label">Pengeluaran</div>
+            <div class="rs-val red" id="rptKeluar">—</div>
+          </div>
+          <div class="report-stat">
+            <div class="rs-label">Sisa</div>
+            <div class="rs-val white" id="rptSisa">—</div>
+          </div>
+          <div class="report-stat">
+            <div class="rs-label">Transaksi</div>
+            <div class="rs-val white" id="rptTx">—</div>
+          </div>
+          <div class="report-stat">
+            <div class="rs-label">Rata/Hari</div>
+            <div class="rs-val white" id="rptRata">—</div>
+          </div>
+          <div class="report-stat">
+            <div class="rs-label">Savings</div>
+            <div class="rs-val green" id="rptSavings">—</div>
+          </div>
+        </div>
+
+        <div class="section-title">Rincian Per Kategori</div>
+        <div id="katList"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Floating Action Button -->
+<button class="fab" onclick="openAddTx()" title="Tambah Transaksi">＋</button>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  CONFIG — ganti SHEET_ID dan SCRIPT_URL sesuai deployment
+// ════════════════════════════════════════════════════════════
+const SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL"; // ganti ini
+const SHEET_ID   = "1CThkYlTZVZmZcCw4VZ6wKYH2IQYb2fTXBfSOb9_2KB8";
+
+// ════════════════════════════════════════════════════════════
+//  TELEGRAM INIT
+// ════════════════════════════════════════════════════════════
+const tg = window.Telegram?.WebApp;
+let userId   = null;
+let username = "Pengguna";
+
+if (tg) {
+  tg.expand();
+  tg.ready();
+  tg.setHeaderColor?.("#0f0f14");
+  tg.setBackgroundColor?.("#0f0f14");
+  const user = tg.initDataUnsafe?.user;
+  if (user) {
+    userId   = user.id?.toString();
+    username = user.username || user.first_name || "Pengguna";
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  HELPER
+// ════════════════════════════════════════════════════════════
+function fmt(n) {
+  return "Rp " + Math.abs(Number(n)).toLocaleString("id-ID");
+}
+function fmtShort(n) {
+  n = Math.abs(Number(n));
+  if (n >= 1_000_000) return (n/1_000_000).toFixed(1).replace('.0','') + "jt";
+  if (n >= 1_000)     return (n/1_000).toFixed(0) + "rb";
+  return n.toString();
+}
+
+// ════════════════════════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════════════════════════
+let activeTab = 'beranda';
+function switchTab(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'grafik' && !donutRendered) renderGrafik();
+}
+
+// ════════════════════════════════════════════════════════════
+//  FETCH DATA FROM GOOGLE SHEETS (PUBLIC JSON EXPORT)
+//  Menggunakan API dari Google Apps Script doGet endpoint
+// ════════════════════════════════════════════════════════════
+
+// Data lokal (diisi dari Apps Script)
+let allTx    = [];
+let allSaldo = [];
+
+async function fetchData() {
+  try {
+    const url = SCRIPT_URL + "?action=getData&userId=" + (userId||"") + "&t=" + Date.now();
+    const res = await fetch(url);
+    const d   = await res.json();
+    allTx    = d.transaksi  || [];
+    allSaldo = d.saldo      || [];
+    renderAll();
+  } catch(e) {
+    // fallback demo data
+    loadDemoData();
+    renderAll();
+  }
+}
+
+function loadDemoData() {
+  const now = new Date();
+  const mo  = now.getMonth() + 1;
+  const yr  = now.getFullYear();
+  allSaldo = [{ userId:"demo", username:"Demo", saldo:24471331, totalMasuk:13000000, totalKeluar:871000 }];
+  allTx = [
+    { tipe:"pemasukan",   kategori:"Gaji pokok",       deskripsi:"gajian bulanan", jumlah:3000000,  tgl: yr+"-0"+mo+"-08", waktu:"11:36", saldoSetelah:24471331 },
+    { tipe:"pengeluaran", kategori:"Jajan / Makan di luar", deskripsi:"makan malam",   jumlah:20000,    tgl: yr+"-0"+mo+"-08", waktu:"11:33", saldoSetelah:21471331 },
+    { tipe:"pengeluaran", kategori:"Belanja bulanan",   deskripsi:"MINISO",         jumlah:62800,    tgl: yr+"-0"+mo+"-08", waktu:"11:31", saldoSetelah:21491331 },
+    { tipe:"pengeluaran", kategori:"Jajan / Makan di luar", deskripsi:"Seafood eka",    jumlah:50000,    tgl: yr+"-0"+mo+"-08", waktu:"11:26", saldoSetelah:21554131 },
+    { tipe:"pengeluaran", kategori:"Jajan / Makan di luar", deskripsi:"Makan siang",    jumlah:20000,    tgl: yr+"-0"+mo+"-08", waktu:"11:24", saldoSetelah:21604131 },
+    { tipe:"pengeluaran", kategori:"Jajan / Makan di luar", deskripsi:"sarapan",         jumlah:10000,    tgl: yr+"-0"+mo+"-08", waktu:"11:22", saldoSetelah:21624131 },
+    { tipe:"pengeluaran", kategori:"Paket Data",         deskripsi:"Paket Data XL",  jumlah:500000,   tgl: yr+"-0"+mo+"-05", waktu:"09:00", saldoSetelah:21634131 },
+    { tipe:"pengeluaran", kategori:"Listrik",            deskripsi:"Tagihan listrik", jumlah:100000,  tgl: yr+"-0"+mo+"-03", waktu:"10:00", saldoSetelah:22134131 },
+    { tipe:"pengeluaran", kategori:"Belanja bulanan",   deskripsi:"Indomaret",      jumlah:50700,    tgl: yr+"-0"+mo+"-02", waktu:"08:30", saldoSetelah:22234131 },
+    { tipe:"pemasukan",   kategori:"Gaji pokok",         deskripsi:"gajian bulanan", jumlah:10000000, tgl: yr+"-0"+mo+"-01", waktu:"07:00", saldoSetelah:22284831 },
+    { tipe:"pengeluaran", kategori:"Jajan / Makan di luar", deskripsi:"Kopi kenangan", jumlah:27500,   tgl: yr+"-0"+mo+"-01", waktu:"08:15", saldoSetelah:12284831 },
+  ];
+}
+
+// ════════════════════════════════════════════════════════════
+//  RENDER ALL
+// ════════════════════════════════════════════════════════════
+function renderAll() {
+  const saldo = allSaldo[0] || {};
+  document.getElementById('totalKekayaan').textContent =
+    (saldo.saldo||0).toLocaleString('id-ID');
+
+  renderBeranda(saldo);
+  renderRiwayat();
+  renderLaporan(saldo);
+}
+
+// ── BERANDA ──
+const WALLET_ICONS = { BCA: "🏦", BNI: "🏦", Cash: "💵", Mandiri: "🏦", BRI: "🏦" };
+function renderBeranda(saldo) {
+  const masuk  = saldo.totalMasuk  || 0;
+  const keluar = saldo.totalKeluar || 0;
+  const sisa   = masuk - keluar;
+  const pct    = masuk > 0 ? Math.round(keluar / masuk * 100) : 0;
+
+  document.getElementById('b-masuk').textContent  = fmt(masuk);
+  document.getElementById('b-keluar').textContent = fmt(keluar);
+  document.getElementById('b-sisa').textContent   = fmt(sisa);
+  document.getElementById('b-pct').textContent    = pct + "%";
+  document.getElementById('b-bar').style.width    = Math.min(pct, 100) + "%";
+
+  // Wallet cards (demo: 3 wallets)
+  const wallets = [
+    { name: "BCA",  icon: "🏦", saldo: 17332061 },
+    { name: "BNI",  icon: "🏦", saldo: 6501923  },
+    { name: "Cash", icon: "💵", saldo: 336347   },
+  ];
+  document.getElementById('walletList').innerHTML = wallets.map(w => `
+    <div class="wallet-card">
+      <div class="wallet-icon">${w.icon}</div>
+      <div class="wallet-name">${w.name}</div>
+      <div class="wallet-label">SALDO</div>
+      <div class="wallet-amount">${fmt(w.saldo)}</div>
+    </div>
+  `).join('');
+
+  // Today's transactions
+  const today = new Date().toISOString().split('T')[0];
+  const todayTx = allTx.filter(t => t.tgl === today || t.tgl?.startsWith(today));
+  const katIcon = { 'Gaji pokok': '💼', 'Jajan / Makan di luar': '🍜', 'Belanja bulanan': '🛒', 'Paket Data': '📦', 'Listrik': '💡' };
+
+  document.getElementById('txHariIni').innerHTML = todayTx.length === 0
+    ? `<div class="empty"><div class="empty-icon">📭</div>Belum ada transaksi hari ini</div>`
+    : todayTx.map(t => `
+      <div class="tx-item">
+        <div class="tx-icon">${katIcon[t.kategori] || '💳'}</div>
+        <div class="tx-info">
+          <div class="tx-name">${t.deskripsi}</div>
+          <div class="tx-cat">${t.kategori} · ${t.waktu}</div>
+        </div>
+        <div class="tx-amount ${t.tipe === 'pemasukan' ? 'green' : 'red'}">
+          ${t.tipe === 'pemasukan' ? '+' : '-'}${fmt(t.jumlah)}
+        </div>
+      </div>
+    `).join('');
+}
+
+// ── GRAFIK ──
+let donutRendered = false;
+const COLORS = ["#7c6ef5","#22d3ee","#fb923c","#f87171","#4ade80","#facc15","#e879f9"];
+
+function renderGrafik() {
+  donutRendered = true;
+
+  // Kategori pengeluaran
+  const keluar = {};
+  allTx.filter(t => t.tipe === 'pengeluaran').forEach(t => {
+    keluar[t.kategori] = (keluar[t.kategori]||0) + Number(t.jumlah);
+  });
+  const sorted = Object.entries(keluar).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const total  = sorted.reduce((s,[,v])=>s+v, 0);
+
+  document.getElementById('donutTotal').textContent = fmtShort(total);
+
+  // Draw donut
+  const canvas = document.getElementById('donutCanvas');
+  const ctx    = canvas.getContext('2d');
+  const cx = 85, cy = 85, r = 70, hole = 44;
+  ctx.clearRect(0,0,170,170);
+  let start = -Math.PI/2;
+  sorted.forEach(([,v], i) => {
+    const angle = (v/total) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, start + angle);
+    ctx.closePath();
+    ctx.fillStyle = COLORS[i];
+    ctx.fill();
+    start += angle;
+  });
+  // Hole
+  ctx.beginPath();
+  ctx.arc(cx, cy, hole, 0, 2*Math.PI);
+  ctx.fillStyle = '#16161e';
+  ctx.fill();
+
+  // Legend
+  document.getElementById('legendList').innerHTML = sorted.map(([kat,v], i) => `
+    <div class="legend-row">
+      <div class="legend-left">
+        <div class="legend-dot" style="background:${COLORS[i]}"></div>
+        <span class="legend-name">${kat}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="legend-pct">${Math.round(v/total*100)}%</span>
+        <span class="legend-amt">${fmt(v)}</span>
+      </div>
+    </div>
+  `).join('');
+
+  // Trend chart (last 6 months)
+  const monthData = {};
+  allTx.forEach(t => {
+    const mo = t.tgl?.slice(0,7) || '';
+    if (!mo) return;
+    if (!monthData[mo]) monthData[mo] = { masuk: 0, keluar: 0 };
+    if (t.tipe === 'pemasukan') monthData[mo].masuk += Number(t.jumlah);
+    else monthData[mo].keluar += Number(t.jumlah);
+  });
+  const months = Object.keys(monthData).sort().slice(-6);
+  const maxVal = Math.max(...months.flatMap(m => [monthData[m].masuk, monthData[m].keluar]), 1);
+
+  document.getElementById('trendChart').innerHTML = months.map(m => {
+    const d = monthData[m];
+    const mH = Math.round(d.masuk / maxVal * 90);
+    const kH = Math.round(d.keluar / maxVal * 90);
+    return `
+      <div class="bar-col">
+        <div class="bar-fill income"  style="height:${mH}px"></div>
+        <div class="bar-fill expense" style="height:${kH}px"></div>
+      </div>
+    `;
+  }).join('');
+
+  const moNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  document.getElementById('trendLabels').innerHTML = months.map(m => {
+    const idx = parseInt(m.split('-')[1]) - 1;
+    return `<div style="flex:1;text-align:center;font-size:10px;color:var(--text-dim)">${moNames[idx]}</div>`;
+  }).join('');
+}
+
+// ── RIWAYAT ──
+const katIcon = { 'Gaji pokok':'💼','Jajan / Makan di luar':'🍜','Belanja bulanan':'🛒','Paket Data':'📦','Listrik':'💡' };
+function renderRiwayat() {
+  const sorted = [...allTx].sort((a,b)=>(b.tgl+b.waktu).localeCompare(a.tgl+a.waktu)).slice(0, 30);
+  document.getElementById('riwayatList').innerHTML = sorted.length === 0
+    ? `<div class="empty"><div class="empty-icon">📭</div>Belum ada riwayat</div>`
+    : sorted.map(t => {
+        const tgl = t.tgl?.split('-').reverse().join('/').slice(0,8) || '';
+        return `
+          <div class="tx-item">
+            <div class="tx-icon">${katIcon[t.kategori]||'💳'}</div>
+            <div class="tx-info">
+              <div class="tx-name">${t.deskripsi}</div>
+              <div class="tx-cat">${t.kategori} · ${tgl}, ${t.waktu}</div>
+            </div>
+            <div class="tx-amount ${t.tipe==='pemasukan'?'green':'red'}">
+              ${t.tipe==='pemasukan'?'+':'-'}${fmt(t.jumlah)}
+            </div>
+          </div>
+        `;
+      }).join('');
+}
+
+// ── LAPORAN ──
+function renderLaporan(saldo) {
+  const now  = new Date();
+  const moNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  document.getElementById('rptBulan').textContent = moNames[now.getMonth()] + ' ' + now.getFullYear();
+
+  const masuk  = saldo.totalMasuk  || 0;
+  const keluar = saldo.totalKeluar || 0;
+  const sisa   = masuk - keluar;
+  const savings = masuk > 0 ? Math.round(sisa/masuk*100) : 0;
+  const hariDlm = now.getDate();
+
+  document.getElementById('rptMasuk').textContent   = fmt(masuk);
+  document.getElementById('rptKeluar').textContent  = fmt(keluar);
+  document.getElementById('rptSisa').textContent    = fmt(sisa);
+  document.getElementById('rptTx').textContent      = allTx.length + "x";
+  document.getElementById('rptRata').textContent    = fmt(Math.round(keluar/hariDlm));
+  document.getElementById('rptSavings').textContent = savings + "%";
+
+  // Kategori
+  const katMap = {};
+  allTx.filter(t=>t.tipe==='pengeluaran').forEach(t=>{
+    katMap[t.kategori] = (katMap[t.kategori]||0) + Number(t.jumlah);
+  });
+  const kat = Object.entries(katMap).sort((a,b)=>b[1]-a[1]);
+  const max = kat[0]?.[1] || 1;
+  const katColors = { 'Paket Data':'var(--purple)', 'Jajan / Makan di luar':'var(--cyan)', 'Belanja bulanan':'var(--orange)', 'Listrik':'var(--red)' };
+  const katIcons  = { 'Paket Data':'📦', 'Jajan / Makan di luar':'🍜', 'Belanja bulanan':'🛒', 'Listrik':'💡' };
+
+  document.getElementById('katList').innerHTML = kat.map(([k,v])=>`
+    <div class="cat-row">
+      <div class="cat-row-top">
+        <div class="cat-name">${katIcons[k]||'💳'} ${k}</div>
+        <div class="cat-amt">${fmt(v)}</div>
+      </div>
+      <div class="cat-bar-wrap">
+        <div class="cat-bar-fill" style="width:${Math.round(v/max*100)}%;background:${katColors[k]||'var(--purple)'}"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+//  ADD TRANSACTION (kirim ke Telegram Bot)
+// ════════════════════════════════════════════════════════════
+function openAddTx() {
+  if (tg) {
+    tg.showPopup({
+      title: "Catat Transaksi",
+      message: "Ketik nominal dan keterangan di chat bot, contoh:\n\nmakan siang 15000\ngajian 3jt",
+      buttons: [{ type: "close", text: "Mengerti" }]
+    });
+  } else {
+    alert("Catat transaksi langsung di chat bot Telegram kamu!\nContoh: makan siang 15000");
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════
+fetchData();
+</script>
+</body>
+</html>
