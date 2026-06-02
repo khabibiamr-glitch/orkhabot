@@ -200,11 +200,12 @@
     font-family: var(--mono); font-size: 24px; font-weight: 700;
     color: var(--text); margin-bottom: 14px; letter-spacing: -1px; line-height: 1;
   }
-  .report-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; margin-bottom: 13px; }
-  .report-stat  { background: var(--surface2); border: 1px solid var(--border); border-radius: 11px; padding: 11px 9px; }
-  .rs-label     { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 5px; }
-  /* angka statistik laporan */
-  .rs-val       { font-size: 13px; font-weight: 700; font-family: var(--mono); letter-spacing: -.3px; line-height: 1.15; }
+  /* 2 kolom seperti gambar referensi — angka tidak terpotong */
+  .report-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 13px; }
+  .report-stat  { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px; }
+  .rs-label     { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  /* angka statistik laporan — lebih besar karena 2 kolom */
+  .rs-val       { font-size: 15px; font-weight: 700; font-family: var(--mono); letter-spacing: -.4px; line-height: 1.2; }
   .rs-val.green { color: var(--green); }
   .rs-val.red   { color: var(--red); }
   .rs-val.white { color: var(--text); }
@@ -339,12 +340,12 @@
       <div class="card-body">
         <div class="report-month" id="rptBulan">— —</div>
         <div class="report-stats">
-          <div class="report-stat"><div class="rs-label">Pemasukan</div><div class="rs-val green" id="rptMasuk">—</div></div>
-          <div class="report-stat"><div class="rs-label">Pengeluaran</div><div class="rs-val red" id="rptKeluar">—</div></div>
-          <div class="report-stat"><div class="rs-label">Sisa</div><div class="rs-val white" id="rptSisa">—</div></div>
-          <div class="report-stat"><div class="rs-label">Transaksi</div><div class="rs-val white" id="rptTx">—</div></div>
-          <div class="report-stat"><div class="rs-label">Rata/Hari</div><div class="rs-val white" id="rptRata">—</div></div>
-          <div class="report-stat"><div class="rs-label">Savings</div><div class="rs-val green" id="rptSavings">—</div></div>
+          <div class="report-stat"><div class="rs-label">📈 Pemasukan</div><div class="rs-val green" id="rptMasuk">—</div></div>
+          <div class="report-stat"><div class="rs-label">📉 Pengeluaran</div><div class="rs-val red" id="rptKeluar">—</div></div>
+          <div class="report-stat"><div class="rs-label">💰 Sisa</div><div class="rs-val white" id="rptSisa">—</div></div>
+          <div class="report-stat"><div class="rs-label">🔢 Transaksi</div><div class="rs-val white" id="rptTx">—</div></div>
+          <div class="report-stat"><div class="rs-label">📊 Rata/Hari</div><div class="rs-val white" id="rptRata">—</div></div>
+          <div class="report-stat"><div class="rs-label">🏦 Savings</div><div class="rs-val green" id="rptSavings">—</div></div>
         </div>
         <div class="section-title">Rincian Per Kategori</div>
         <div id="katList"></div>
