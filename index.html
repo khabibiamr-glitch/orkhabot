@@ -18,121 +18,241 @@
     --cyan: #22d3ee;
     --orange: #fb923c;
     --text: #e8e8f0;
-    --text-dim: #7f7f9a;
+    --text-dim: #8888a8;
     --radius: 14px;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
   }
+
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html, body { height:100%; overflow:hidden; }
   body {
     background: var(--bg); color: var(--text);
-    font-family: 'Syne', sans-serif; font-size: 14px;
+    font-family: var(--sans); font-size: 14px; line-height: 1.45;
     display: flex; flex-direction: column; height: 100vh; height: 100dvh;
   }
-  .topbar { padding: 20px 20px 12px; background: var(--bg); position: relative; z-index: 10; }
-  .topbar-label { font-size: 12px; color: var(--text-dim); letter-spacing: .12em; text-transform: uppercase; }
-  .topbar-amount { font-size: 36px; font-weight: 800; margin-top: 6px; display: flex; align-items: baseline; gap: 8px; }
-  .topbar-amount .currency { color: var(--purple); font-size: 26px; }
-  .topbar-amount .number { color: var(--text); letter-spacing: -1px; font-family: 'Space Mono', monospace; }
-  .tabnav { display: flex; border-bottom: 1px solid var(--border); background: var(--bg); padding: 0 8px; }
-  .tab {
-    flex: 1; padding: 10px 4px; text-align: center; font-size: 11px; font-weight: 600;
-    letter-spacing: .06em; color: var(--text-dim); cursor: pointer; position: relative;
-    text-transform: uppercase; transition: color .2s; border: none; background: none;
+
+  /* ══ TOPBAR ══ */
+  .topbar { padding: 16px 16px 10px; background: var(--bg); position: relative; z-index: 10; }
+  .topbar-row { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+  .topbar-label {
+    font-size: 10px; font-weight: 700; color: var(--text-dim);
+    letter-spacing: .18em; text-transform: uppercase;
   }
-  .tab .tab-icon { display: block; font-size: 16px; margin-bottom: 3px; }
+  .topbar-amount { display: flex; align-items: baseline; gap: 5px; }
+  .topbar-amount .currency {
+    color: var(--purple); font-size: 18px; font-weight: 700; font-family: var(--sans);
+  }
+  .topbar-amount .number {
+    color: var(--text); font-size: 32px; font-weight: 700;
+    font-family: var(--mono); letter-spacing: -2px; line-height: 1;
+  }
+
+  /* ══ TABS ══ */
+  .tabnav { display: flex; border-bottom: 1px solid var(--border); background: var(--bg); padding: 0 2px; }
+  .tab {
+    flex: 1; padding: 8px 2px 7px; text-align: center; cursor: pointer; position: relative;
+    font-family: var(--sans); font-size: 9.5px; font-weight: 700; letter-spacing: .07em;
+    color: var(--text-dim); text-transform: uppercase; transition: color .2s;
+    border: none; background: none;
+  }
+  .tab .tab-icon { display: block; font-size: 17px; margin-bottom: 2px; }
   .tab.active { color: var(--purple); }
   .tab.active::after {
-    content: ''; position: absolute; bottom: -1px; left: 20%; right: 20%;
-    height: 2px; background: var(--purple); border-radius: 2px 2px 0 0;
+    content: ''; position: absolute; bottom: -1px; left: 12%; right: 12%;
+    height: 2.5px; background: var(--purple); border-radius: 2px 2px 0 0;
   }
-  .content { flex: 1; overflow-y: auto; padding: 16px 16px 24px; -webkit-overflow-scrolling: touch; }
+
+  /* ══ CONTENT ══ */
+  .content { flex: 1; overflow-y: auto; padding: 12px 13px 80px; -webkit-overflow-scrolling: touch; }
   .page { display: none; }
   .page.active { display: block; }
-  .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-bottom: 12px; }
+
+  /* ══ CARD ══ */
+  .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-bottom: 11px; }
   .card-header {
-    padding: 12px 16px 10px; font-size: 11px; font-weight: 700; letter-spacing: .1em;
+    padding: 10px 15px; font-size: 10.5px; font-weight: 700; letter-spacing: .12em;
     text-transform: uppercase; color: var(--text-dim); border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: center; gap: 7px;
   }
-  .card-body { padding: 14px 16px; }
-  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-  .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 14px 12px; }
-  .stat-label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
-  .stat-value { font-size: 18px; font-weight: 800; font-family: 'Space Mono', monospace; letter-spacing: -0.5px; }
+  .card-body { padding: 13px 15px; }
+
+  /* ══ STAT BOXES — Pemasukan / Pengeluaran ══ */
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 11px; }
+  .stat-box  { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 13px 11px; }
+  .stat-label {
+    font-size: 10px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--text-dim); margin-bottom: 7px;
+  }
+  /* angka pemasukan / pengeluaran: cukup besar tapi tidak terpotong */
+  .stat-value {
+    font-size: 15px; font-weight: 700; font-family: var(--mono);
+    letter-spacing: -.4px; line-height: 1.15;
+  }
   .stat-value.green { color: var(--green); }
   .stat-value.red   { color: var(--red); }
   .stat-value.white { color: var(--text); }
-  .budget-big { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 16px; margin-bottom: 12px; }
-  .budget-label { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
-  .budget-amount { font-size: 32px; font-weight: 800; color: var(--green); margin-bottom: 14px; font-family: 'Space Mono', monospace; letter-spacing: -1px; }
-  .progress-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
-  .progress-bar { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+
+  /* ══ BUDGET / SISA ══ */
+  .budget-big {
+    background: var(--surface); border-radius: var(--radius);
+    border: 1px solid var(--border); padding: 15px; margin-bottom: 11px;
+  }
+  .budget-label  {
+    font-size: 10px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--text-dim); margin-bottom: 5px;
+  }
+  /* angka sisa budget: paling dominan di halaman */
+  .budget-amount {
+    font-size: 28px; font-weight: 700; color: var(--green);
+    margin-bottom: 13px; font-family: var(--mono); letter-spacing: -1.5px; line-height: 1;
+  }
+  .progress-row  {
+    display: flex; justify-content: space-between;
+    font-size: 11.5px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px;
+  }
+  .progress-bar  { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
   .progress-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width .6s ease; }
-  .wallet-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+
+  /* ══ WALLET ══ */
+  .wallet-scroll { display: flex; gap: 9px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
   .wallet-scroll::-webkit-scrollbar { display: none; }
-  .wallet-card { min-width: 140px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; flex-shrink: 0; }
-  .wallet-icon { font-size: 22px; margin-bottom: 8px; }
-  .wallet-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
-  .wallet-label { font-size: 10px; color: var(--text-dim); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
-  .wallet-amount { font-size: 17px; font-weight: 800; color: var(--green); font-family: 'Space Mono', monospace; letter-spacing: -0.5px; }
-  .tx-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .wallet-card   {
+    min-width: 148px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 13px; flex-shrink: 0;
+  }
+  .wallet-icon   { font-size: 22px; margin-bottom: 7px; }
+  .wallet-name   { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .wallet-label  {
+    font-size: 9.5px; font-weight: 600; color: var(--text-dim);
+    letter-spacing: .1em; text-transform: uppercase; margin-bottom: 5px;
+  }
+  .wallet-amount {
+    font-size: 17px; font-weight: 700; color: var(--green);
+    font-family: var(--mono); letter-spacing: -.5px;
+  }
+
+  /* ══ TRANSAKSI ITEM ══ */
+  .tx-item { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 1px solid var(--border); }
   .tx-item:last-child { border-bottom: none; }
-  .tx-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .tx-icon {
+    width: 40px; height: 40px; border-radius: 10px; background: var(--surface2);
+    display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0;
+  }
   .tx-info { flex: 1; min-width: 0; }
-  .tx-name { font-weight: 700; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .tx-cat  { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-  .tx-amount { font-weight: 700; font-size: 13px; white-space: nowrap; }
+  .tx-name   { font-weight: 700; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tx-cat    { font-size: 11.5px; color: var(--text-dim); margin-top: 2px; }
+  /* angka nominal transaksi */
+  .tx-amount {
+    font-weight: 700; font-size: 13.5px; font-family: var(--mono);
+    white-space: nowrap; letter-spacing: -.3px;
+  }
   .tx-amount.green { color: var(--green); }
   .tx-amount.red   { color: var(--red); }
-  .section-title { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text-dim); margin: 16px 0 8px; }
-  .donut-wrap { position: relative; width: 170px; height: 170px; margin: 0 auto 16px; }
+
+  /* ══ SECTION TITLE ══ */
+  .section-title {
+    font-size: 10px; font-weight: 700; letter-spacing: .15em;
+    text-transform: uppercase; color: var(--text-dim); margin: 14px 0 9px;
+  }
+
+  /* ══ DONUT CHART ══ */
+  .donut-wrap { position: relative; width: 178px; height: 178px; margin: 4px auto 16px; }
   .donut-wrap canvas { display: block; }
-  .donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
-  .donut-center .dc-label { font-size: 10px; color: var(--text-dim); letter-spacing: .08em; text-transform: uppercase; }
-  .donut-center .dc-total { font-size: 17px; font-weight: 800; color: var(--text); }
-  .legend-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .donut-center {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    text-align: center; pointer-events: none;
+  }
+  .donut-center .dc-label {
+    font-size: 9.5px; font-weight: 700; color: var(--text-dim);
+    letter-spacing: .12em; text-transform: uppercase;
+  }
+  /* angka total donut */
+  .donut-center .dc-total {
+    font-size: 17px; font-weight: 700; font-family: var(--mono);
+    color: var(--text); letter-spacing: -.5px; margin-top: 2px;
+  }
+
+  /* ══ LEGEND ══ */
+  .legend-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
   .legend-row:last-child { border-bottom: none; }
-  .legend-left { display: flex; align-items: center; gap: 10px; }
-  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-  .legend-pct { font-size: 12px; color: var(--text-dim); margin-right: 8px; }
-  .legend-name { font-size: 13px; font-weight: 600; }
-  .legend-amt { font-size: 13px; font-weight: 700; color: var(--red); }
-  .bar-chart { display: flex; gap: 6px; align-items: flex-end; height: 100px; margin-top: 12px; }
-  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-  .bar-fill { width: 100%; border-radius: 4px 4px 0 0; transition: height .4s ease; min-height: 2px; }
+  .legend-left  { display: flex; align-items: center; gap: 9px; }
+  .legend-dot   { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+  .legend-name  { font-size: 13px; font-weight: 600; }
+  .legend-right { display: flex; align-items: center; gap: 8px; }
+  .legend-pct   { font-size: 11.5px; font-weight: 700; color: var(--text-dim); font-family: var(--mono); min-width: 30px; text-align: right; }
+  /* angka nominal legend */
+  .legend-amt   { font-size: 13px; font-weight: 700; color: var(--red); font-family: var(--mono); letter-spacing: -.3px; }
+
+  /* ══ BAR CHART ══ */
+  .bar-chart { display: flex; gap: 5px; align-items: flex-end; height: 100px; margin-top: 10px; }
+  .bar-col   { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .bar-fill  { width: 100%; border-radius: 4px 4px 0 0; transition: height .4s ease; min-height: 2px; }
   .bar-fill.income  { background: var(--green); }
-  .bar-fill.expense { background: var(--red); opacity: .8; }
-  .report-month { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 14px; letter-spacing: -1px; }
-  .report-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-  .report-stat { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 10px; }
-  .report-stat .rs-label { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 5px; }
-  .report-stat .rs-val { font-size: 13px; font-weight: 800; }
+  .bar-fill.expense { background: var(--red); opacity: .85; }
+  .bar-lbl   { font-size: 10px; color: var(--text-dim); font-weight: 600; text-align: center; flex: 1; }
+
+  /* ══ LAPORAN ══ */
+  .report-month {
+    font-family: var(--mono); font-size: 24px; font-weight: 700;
+    color: var(--text); margin-bottom: 14px; letter-spacing: -1px; line-height: 1;
+  }
+  .report-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; margin-bottom: 13px; }
+  .report-stat  { background: var(--surface2); border: 1px solid var(--border); border-radius: 11px; padding: 11px 9px; }
+  .rs-label     { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 5px; }
+  /* angka statistik laporan */
+  .rs-val       { font-size: 13px; font-weight: 700; font-family: var(--mono); letter-spacing: -.3px; line-height: 1.15; }
+  .rs-val.green { color: var(--green); }
+  .rs-val.red   { color: var(--red); }
+  .rs-val.white { color: var(--text); }
+
+  /* ══ KATEGORI ROW ══ */
   .cat-row { padding: 10px 0; border-bottom: 1px solid var(--border); }
   .cat-row:last-child { border-bottom: none; }
-  .cat-row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .cat-name { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
-  .cat-amt { font-size: 13px; font-weight: 700; color: var(--red); }
+  .cat-row-top  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+  .cat-name     { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; }
+  /* angka nominal kategori */
+  .cat-amt      { font-size: 13.5px; font-weight: 700; color: var(--red); font-family: var(--mono); letter-spacing: -.3px; }
   .cat-bar-wrap { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
   .cat-bar-fill { height: 100%; border-radius: 99px; }
-  .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; gap: 12px; color: var(--text-dim); }
-  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--purple); border-radius: 50%; animation: spin .7s linear infinite; }
+
+  /* ══ MISC ══ */
+  .loading {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 36px 0; gap: 12px; color: var(--text-dim);
+  }
+  .spinner {
+    width: 28px; height: 28px; border: 2.5px solid var(--border);
+    border-top-color: var(--purple); border-radius: 50%; animation: spin .7s linear infinite;
+  }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .empty { text-align: center; padding: 32px 0; color: var(--text-dim); }
-  .empty .empty-icon { font-size: 36px; margin-bottom: 10px; }
-  .error-box { background: rgba(248,113,113,.1); border: 1px solid var(--red); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: var(--red); margin-bottom: 12px; }
+  .empty { text-align: center; padding: 28px 0; color: var(--text-dim); font-size: 13px; }
+  .empty .empty-icon { font-size: 36px; margin-bottom: 9px; display: block; }
+  .error-box {
+    background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.35);
+    border-radius: 10px; padding: 11px 13px; font-size: 12px; color: var(--red);
+    margin-bottom: 11px; line-height: 1.55;
+  }
+
+  /* ══ FAB ══ */
   .fab {
-    position: fixed; bottom: 80px; right: 18px; width: 52px; height: 52px; border-radius: 50%;
-    background: var(--purple); color: #fff; font-size: 24px; border: none; cursor: pointer;
-    box-shadow: 0 4px 20px rgba(124,110,245,.5); display: flex; align-items: center; justify-content: center;
-    transition: transform .15s; z-index: 100;
+    position: fixed; bottom: 22px; right: 16px; width: 52px; height: 52px; border-radius: 50%;
+    background: var(--purple); color: #fff; font-size: 25px; border: none; cursor: pointer;
+    box-shadow: 0 4px 22px rgba(124,110,245,.55); display: flex; align-items: center;
+    justify-content: center; transition: transform .15s; z-index: 100;
   }
-  .fab:active { transform: scale(.92); }
+  .fab:active { transform: scale(.91); }
+
+  /* ══ REFRESH BTN ══ */
   .refresh-btn {
-    display: flex; align-items: center; gap: 6px; background: var(--surface2);
-    border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;
-    font-size: 11px; color: var(--text-dim); cursor: pointer; margin-left: auto;
+    display: flex; align-items: center; gap: 5px;
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 11px; font-size: 11.5px; font-weight: 600; color: var(--text-dim);
+    cursor: pointer; font-family: var(--sans);
   }
-  .topbar-row { display: flex; align-items: flex-end; justify-content: space-between; }
 </style>
 </head>
 <body>
@@ -511,7 +631,7 @@ function renderGrafik() {
             <div class="legend-dot" style="background:${COLORS[i]}"></div>
             <span class="legend-name">${kat}</span>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;">
+          <div class="legend-right">
             <span class="legend-pct">${Math.round(v/total*100)}%</span>
             <span class="legend-amt">${fmt(v)}</span>
           </div>
@@ -544,7 +664,7 @@ function renderGrafik() {
   const moNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
   document.getElementById('trendLabels').innerHTML = months.map(m => {
     const idx = parseInt(m.split('-')[1]) - 1;
-    return `<div style="flex:1;text-align:center;font-size:10px;color:var(--text-dim)">${moNames[idx]}</div>`;
+    return `<div style="flex:1;text-align:center;" class="bar-lbl">${moNames[idx]}</div>`;
   }).join('');
 }
 
