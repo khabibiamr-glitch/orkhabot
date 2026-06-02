@@ -29,10 +29,10 @@
     display: flex; flex-direction: column; height: 100vh; height: 100dvh;
   }
   .topbar { padding: 20px 20px 12px; background: var(--bg); position: relative; z-index: 10; }
-  .topbar-label { font-size: 11px; color: var(--text-dim); letter-spacing: .12em; text-transform: uppercase; }
-  .topbar-amount { font-size: 30px; font-weight: 800; margin-top: 4px; display: flex; align-items: baseline; gap: 6px; }
-  .topbar-amount .currency { color: var(--purple); font-size: 22px; }
-  .topbar-amount .number { color: var(--text); letter-spacing: -1px; }
+  .topbar-label { font-size: 12px; color: var(--text-dim); letter-spacing: .12em; text-transform: uppercase; }
+  .topbar-amount { font-size: 36px; font-weight: 800; margin-top: 6px; display: flex; align-items: baseline; gap: 8px; }
+  .topbar-amount .currency { color: var(--purple); font-size: 26px; }
+  .topbar-amount .number { color: var(--text); letter-spacing: -1px; font-family: 'Space Mono', monospace; }
   .tabnav { display: flex; border-bottom: 1px solid var(--border); background: var(--bg); padding: 0 8px; }
   .tab {
     flex: 1; padding: 10px 4px; text-align: center; font-size: 11px; font-weight: 600;
@@ -57,24 +57,24 @@
   .card-body { padding: 14px 16px; }
   .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
   .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 14px 12px; }
-  .stat-label { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
-  .stat-value { font-size: 16px; font-weight: 800; }
+  .stat-label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
+  .stat-value { font-size: 18px; font-weight: 800; font-family: 'Space Mono', monospace; letter-spacing: -0.5px; }
   .stat-value.green { color: var(--green); }
   .stat-value.red   { color: var(--red); }
   .stat-value.white { color: var(--text); }
   .budget-big { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 16px; margin-bottom: 12px; }
-  .budget-label { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px; }
-  .budget-amount { font-size: 26px; font-weight: 800; color: var(--green); margin-bottom: 12px; }
+  .budget-label { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  .budget-amount { font-size: 32px; font-weight: 800; color: var(--green); margin-bottom: 14px; font-family: 'Space Mono', monospace; letter-spacing: -1px; }
   .progress-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
   .progress-bar { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
   .progress-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width .6s ease; }
   .wallet-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
   .wallet-scroll::-webkit-scrollbar { display: none; }
   .wallet-card { min-width: 140px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; flex-shrink: 0; }
-  .wallet-icon { font-size: 20px; margin-bottom: 6px; }
-  .wallet-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
-  .wallet-label { font-size: 10px; color: var(--text-dim); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
-  .wallet-amount { font-size: 14px; font-weight: 700; color: var(--green); }
+  .wallet-icon { font-size: 22px; margin-bottom: 8px; }
+  .wallet-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .wallet-label { font-size: 10px; color: var(--text-dim); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+  .wallet-amount { font-size: 17px; font-weight: 800; color: var(--green); font-family: 'Space Mono', monospace; letter-spacing: -0.5px; }
   .tx-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
   .tx-item:last-child { border-bottom: none; }
   .tx-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
