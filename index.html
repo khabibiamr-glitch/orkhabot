@@ -417,32 +417,16 @@ function renderBeranda(saldo) {
   document.getElementById('b-pct').textContent    = pct + "%";
   document.getElementById('b-bar').style.width    = Math.min(pct, 100) + "%";
 
-  // ── Wallet: ambil dari allSaldo atau tampil 1 kartu total
-  const walletIcons = { BCA:'🏦', BNI:'🏦', BRI:'🏦', Mandiri:'🏦', Cash:'💵', Tunai:'💵', OVO:'💜', GoPay:'💚', Dana:'💙' };
-  let walletHTML = '';
-  if (allSaldo.length > 1) {
-    // Jika ada multi-wallet dari sheet
-    walletHTML = allSaldo.map(s => `
-      <div class="wallet-card">
-        <div class="wallet-icon">${walletIcons[s.username] || '💳'}</div>
-        <div class="wallet-name">${s.username}</div>
-        <div class="wallet-label">SALDO</div>
-        <div class="wallet-amount">${fmt(s.saldo)}</div>
-      </div>
-    `).join('');
-  } else {
-    // Single user — tampil 1 kartu total kekayaan
-    const s = allSaldo[0] || {};
-    walletHTML = `
-      <div class="wallet-card">
-        <div class="wallet-icon">💰</div>
-        <div class="wallet-name">${s.username || 'Dompet'}</div>
-        <div class="wallet-label">TOTAL SALDO</div>
-        <div class="wallet-amount">${fmt(s.saldo || 0)}</div>
-      </div>
-    `;
-  }
-  document.getElementById('walletList').innerHTML = walletHTML;
+  // ── Wallet: hanya Cash, saldo diambil dari allSaldo[0]
+  const totalSaldo = allSaldo[0]?.saldo || 0;
+  document.getElementById('walletList').innerHTML = `
+    <div class="wallet-card">
+      <div class="wallet-icon">💵</div>
+      <div class="wallet-name">Cash</div>
+      <div class="wallet-label">SALDO</div>
+      <div class="wallet-amount">${fmt(totalSaldo)}</div>
+    </div>
+  `;
 
   // ── Transaksi hari ini (WITA)
   const today    = getTodayWITA();
