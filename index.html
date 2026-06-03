@@ -566,7 +566,9 @@ function renderBeranda(saldo) {
 
   document.getElementById('b-masuk').textContent  = fmt(masukBulan);
   document.getElementById('b-keluar').textContent = fmt(keluarBulan);
-  document.getElementById('b-sisa').textContent   = fmt(sisa);
+  const sisaBudgetEl = document.getElementById('b-sisa');
+  sisaBudgetEl.textContent = (sisa < 0 ? '-' : '') + fmt(Math.abs(sisa));
+  sisaBudgetEl.style.color = sisa >= 0 ? 'var(--green)' : 'var(--red)';
   document.getElementById('b-pct').textContent    = pct + "%";
   document.getElementById('b-bar').style.width    = Math.min(pct, 100) + "%";
 
@@ -946,7 +948,10 @@ function renderLaporan() {
   document.getElementById('rptPeriode').textContent  = periodeLabel;
   document.getElementById('rptMasuk').textContent    = fmt(masuk);
   document.getElementById('rptKeluar').textContent   = fmt(keluar);
-  document.getElementById('rptSisa').textContent     = fmt(sisa);
+  // Warna sisa: hijau jika positif, merah jika negatif
+  const sisaEl = document.getElementById('rptSisa');
+  sisaEl.textContent = (sisa < 0 ? '-' : '') + fmt(Math.abs(sisa));
+  sisaEl.className   = 'rs-val ' + (sisa >= 0 ? 'green' : 'red');
   document.getElementById('rptTx').textContent       = txPeriode.length + "x";
   document.getElementById('rptRata').textContent     = rataVal;
   document.getElementById('rptSavings').textContent  = savings + "%";
