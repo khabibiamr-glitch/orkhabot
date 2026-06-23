@@ -527,8 +527,10 @@ function renderAll() {
   const saldo = allSaldo[0] || {};
 
   // Total kekayaan dari sheet saldo
-  document.getElementById('totalKekayaan').textContent =
-    (saldo.saldo || 0).toLocaleString('id-ID');
+  const totalKekayaan = saldo.saldo || 0;
+  const tkEl = document.getElementById('totalKekayaan');
+  tkEl.textContent = (totalKekayaan < 0 ? '-' : '') + Math.abs(totalKekayaan).toLocaleString('id-ID');
+  tkEl.style.color = totalKekayaan >= 0 ? 'var(--text)' : 'var(--red)';
 
   renderBeranda(saldo);
   renderRiwayat();
@@ -570,16 +572,20 @@ function renderBeranda(saldo) {
   sisaBudgetEl.textContent = (sisa < 0 ? '-' : '') + fmt(Math.abs(sisa));
   sisaBudgetEl.style.color = sisa >= 0 ? 'var(--green)' : 'var(--red)';
   document.getElementById('b-pct').textContent    = pct + "%";
-  document.getElementById('b-bar').style.width    = Math.min(pct, 100) + "%";
+  const barEl = document.getElementById('b-bar');
+  barEl.style.width      = Math.min(pct, 100) + "%";
+  barEl.style.background = pct > 100 ? 'var(--red)' : 'var(--green)';
 
   // ── Wallet: hanya Cash, saldo diambil dari allSaldo[0]
   const totalSaldo = allSaldo[0]?.saldo || 0;
+  const saldoWarna = totalSaldo >= 0 ? 'var(--green)' : 'var(--red)';
+  const saldoTeks  = (totalSaldo < 0 ? '-' : '') + fmt(Math.abs(totalSaldo));
   document.getElementById('walletList').innerHTML = `
     <div class="wallet-card">
       <div class="wallet-icon">💵</div>
       <div class="wallet-name">Cash</div>
       <div class="wallet-label">SALDO</div>
-      <div class="wallet-amount">${fmt(totalSaldo)}</div>
+      <div class="wallet-amount" style="color:${saldoWarna}">${saldoTeks}</div>
     </div>
   `;
 
