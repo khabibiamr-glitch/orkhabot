@@ -551,9 +551,9 @@ function renderBeranda(saldo) {
   const bulanIni = getBulanIni();
   const txBulanIni = allTx.filter(t => t.tgl && t.tgl.startsWith(bulanIni));
 
-  let masukBulan  = 0, keluarBulan = 0;
+  let masukBulan = 0, keluarBulan = 0;
   txBulanIni.forEach(t => {
-    if (t.tipe === 'pemasukan')   masukBulan  += Number(t.jumlah);
+    if (t.tipe === 'pemasukan') masukBulan += Number(t.jumlah);
     else if (t.tipe === 'pengeluaran') keluarBulan += Number(t.jumlah);
   });
 
@@ -563,21 +563,30 @@ function renderBeranda(saldo) {
     keluarBulan = saldo.totalKeluar || 0;
   }
 
-  const sisa = masukBulan - keluarBulan;
-  const pct  = masukBulan > 0 ? Math.round(keluarBulan / masukBulan * 100) : 0;
+  // ── AMBIL SALDO DOMPET CASH DARI GOOGLE SHEETS ──
+  const totalSaldo = allSaldo[0]?.saldo || 0;
+
+  // ── SISA BUDGET SAMA DENGAN SALDO DOMPET CASH ──
+  const sisa = totalSaldo;
+
+  // Persentase terpakai (pengeluaran dibandingkan total dana yang dimiliki)
+  const totalDana = totalSaldo + keluarBulan;
+  const pct = totalDana > 0 ? Math.round((keluarBulan / totalDana) * 100) : 0;
 
   document.getElementById('b-masuk').textContent  = fmt(masukBulan);
   document.getElementById('b-keluar').textContent = fmt(keluarBulan);
+  
+  // Tampilkan Sisa Budget (Sama dengan Saldo Dompet Cash)
   const sisaBudgetEl = document.getElementById('b-sisa');
   sisaBudgetEl.textContent = (sisa < 0 ? '-' : '') + fmt(Math.abs(sisa));
   sisaBudgetEl.style.color = sisa >= 0 ? 'var(--green)' : 'var(--red)';
+  
   document.getElementById('b-pct').textContent    = pct + "%";
   const barEl = document.getElementById('b-bar');
   barEl.style.width      = Math.min(pct, 100) + "%";
   barEl.style.background = pct > 100 ? 'var(--red)' : 'var(--green)';
 
-  // ── Wallet: hanya Cash, saldo diambil dari allSaldo[0]
-  const totalSaldo = allSaldo[0]?.saldo || 0;
+  // ── Wallet: Cash
   const saldoWarna = totalSaldo >= 0 ? 'var(--green)' : 'var(--red)';
   const saldoTeks  = (totalSaldo < 0 ? '-' : '') + fmt(Math.abs(totalSaldo));
   document.getElementById('walletList').innerHTML = `
